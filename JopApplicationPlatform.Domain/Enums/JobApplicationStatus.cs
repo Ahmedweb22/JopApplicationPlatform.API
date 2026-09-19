@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Text;
 
@@ -10,6 +10,7 @@ namespace JopApplicationPlatform.Domain.Enums
         UnderReview,
         Interview,
         Accepted,
-        Rejected
+        Rejected,
+        Cancelled
     }
 }
