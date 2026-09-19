@@ -1,0 +1,6 @@
+<Solution>
+  <Project Path="JopApplicationPlatform.API/JopApplicationPlatform.API.csproj" />
+  <Project Path="JopApplicationPlatform.Application/JopApplicationPlatform.Application.csproj" />
+  <Project Path="JopApplicationPlatform.Domain/JopApplicationPlatform.Domain.csproj" />
+  <Project Path="JopApplicationPlatform.Infrastructure/JopApplicationPlatform.Infrastructure.csproj" />
+</Solution>
