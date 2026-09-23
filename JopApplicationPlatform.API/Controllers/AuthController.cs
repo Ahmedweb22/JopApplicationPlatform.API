@@ -1,8 +1,10 @@
 using System;
 using System.Threading.Tasks;
 using JopApplicationPlatform.Application.DTOs.Requestes;
-using JopApplicationPlatform.Application.Interfaces.IServices;
 using Microsoft.AspNetCore.Mvc;
+using MediatR;
+using JopApplicationPlatform.Application.Features.Auth.Commands.Register;
+using JopApplicationPlatform.Application.Features.Auth.Commands.Login;
 
 namespace JopApplicationPlatform.API.Controllers
 {
@@ -10,11 +12,11 @@ namespace JopApplicationPlatform.API.Controllers
     [ApiController]
     public class AuthController : ControllerBase
     {
-        private readonly IAuthService _authService;
+        private readonly IMediator _mediator;
 
-        public AuthController(IAuthService authService)
+        public AuthController(IMediator mediator)
         {
-            _authService = authService;
+            _mediator = mediator;
         }
 
         [HttpPost("register")]
@@ -22,7 +24,12 @@ namespace JopApplicationPlatform.API.Controllers
         {
             try
             {
-                var result = await _authService.RegisterAsync(dto);
+                var result = await _mediator.Send(new RegisterCommand
+                {
+                    Email = dto.Email,
+                    Password = dto.Password,
+                    Role = dto.Role
+                });
                 return Ok(result);
             }
             catch (Exception ex)
@@ -36,7 +43,11 @@ namespace JopApplicationPlatform.API.Controllers
         {
             try
             {
-                var result = await _authService.LoginAsync(dto);
+                var result = await _mediator.Send(new LoginCommand
+                {
+                    Email = dto.Email,
+                    Password = dto.Password
+                });
                 return Ok(result);
             }
             catch (UnauthorizedAccessException ex)

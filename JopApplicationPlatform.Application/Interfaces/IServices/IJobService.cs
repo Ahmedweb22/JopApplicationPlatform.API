@@ -8,9 +8,9 @@ namespace JopApplicationPlatform.Application.Interfaces.IServices
     public interface IJobService
     {
         Task<int> CreateAsync(CreateJobDto createJobDto);
-        Task<List<JobDto>> GetAvailableJobsAsync();
+        Task<IEnumerable<JobDto>> GetAvailableJobsAsync();
         Task<JobDto> GetJobByIdAsync(int id);
-        Task<List<JobApplicationDto>> GetApplicantsForJobAsync(int jobId, int recruiterId);
+        Task<IEnumerable<JobApplicationDto>> GetApplicantsForJobAsync(int jobId, int recruiterId);
         Task CloseJobAsync(int jobId, int recruiterId);
     }
 }

@@ -1,13 +1,18 @@
 using JopApplicationPlatform.Application.DTOs.Responses;
-using JopApplicationPlatform.Application.Interfaces.IServices;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
-using System.Security.Claims;
 using System.Security.Claims;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authorization;
 using JopApplicationPlatform.Domain.Constants;
 using JopApplicationPlatform.Application.DTOs.Requestes;
+using MediatR;
+using JopApplicationPlatform.Application.Features.Jobs.Commands.CreateJob;
+using JopApplicationPlatform.Application.Features.Jobs.Queries.GetAvailableJobs;
+using JopApplicationPlatform.Application.Features.Jobs.Queries.GetJobById;
+using JopApplicationPlatform.Application.Features.Jobs.Queries.GetApplicantsForJob;
+using JopApplicationPlatform.Application.Features.Jobs.Commands.CancelJob;
+using JopApplicationPlatform.Application.Features.Jobs.Commands.ApplyToJob;
 
 namespace JopApplicationPlatform.API.Controllers
 {
@@ -15,20 +20,23 @@ namespace JopApplicationPlatform.API.Controllers
     [ApiController]
     public class JobsController : ControllerBase
     {
-        private readonly IJobService _jobService;
-        private readonly IApplicationService _applicationService;
+        private readonly IMediator _mediator;
         
-        public JobsController(IJobService jobService, IApplicationService applicationService)
+        public JobsController(IMediator mediator)
         {
-            _jobService = jobService;
-            _applicationService = applicationService;
+            _mediator = mediator;
         }
         
         [HttpPost]
         [Authorize(Roles = StaticRoles.Recruiter)]
         public async Task<IActionResult> Create(CreateJobDto createJobDto)
         {
-            var jobId = await _jobService.CreateAsync(createJobDto);
+            var jobId = await _mediator.Send(new CreateJobCommand
+            {
+                Title = createJobDto.Title,
+                Description = createJobDto.Description,
+                IsActive = createJobDto.IsActive
+            });
             return Ok(new { Id = jobId });
         }
 
@@ -36,7 +44,7 @@ namespace JopApplicationPlatform.API.Controllers
         [AllowAnonymous]
         public async Task<IActionResult> GetAvailableJobs()
         {
-            var jobs = await _jobService.GetAvailableJobsAsync();
+            var jobs = await _mediator.Send(new GetAvailableJobsQuery());
             return Ok(jobs);
         }
 
@@ -44,7 +52,7 @@ namespace JopApplicationPlatform.API.Controllers
         [AllowAnonymous]
         public async Task<IActionResult> GetJobById(int id)
         {
-            var job = await _jobService.GetJobByIdAsync(id);
+            var job = await _mediator.Send(new GetJobByIdQuery { Id = id });
             if (job == null) return NotFound();
             return Ok(job);
         }
@@ -62,7 +70,7 @@ namespace JopApplicationPlatform.API.Controllers
 
             try
             {
-                var applications = await _jobService.GetApplicantsForJobAsync(jobId, recruiterId);
+                var applications = await _mediator.Send(new GetApplicantsForJobQuery { JobId = jobId, RecruiterId = recruiterId });
                 return Ok(applications);
             }
             catch (System.UnauthorizedAccessException ex)
@@ -87,7 +95,7 @@ namespace JopApplicationPlatform.API.Controllers
 
             try
             {
-                await _jobService.CloseJobAsync(id, recruiterId);
+                await _mediator.Send(new CancelJobCommand { JobId = id, RecruiterId = recruiterId });
                 return Ok(new { Message = "Job closed successfully." });
             }
             catch (System.UnauthorizedAccessException ex)
@@ -112,8 +120,7 @@ namespace JopApplicationPlatform.API.Controllers
 
             try
             {
-                var applyDto = new ApplyForJobDto { JobId = id };
-                var applicationId = await _applicationService.ApplyAsync(candidateId, applyDto);
+                var applicationId = await _mediator.Send(new ApplyToJobCommand { JobId = id, CandidateId = candidateId });
                 return Ok(new { Id = applicationId });
             }
             catch (System.Exception ex)

@@ -34,7 +34,7 @@ namespace JopApplicationPlatform.Application.Services
 
         }
 
-        public async Task<List<JobDto>> GetAvailableJobsAsync()
+        public async Task<IEnumerable<JobDto>> GetAvailableJobsAsync()
         {
             var jobs = await _jobRepository.GetAsync(j => j.IsActive);
             return jobs.Select(j => new JobDto
@@ -44,7 +44,7 @@ namespace JopApplicationPlatform.Application.Services
                 Description = j.Description,
                 IsActive = j.IsActive,
                 RecruiterId = j.RecruiterId
-            }).ToList();
+            });
         }
 
         public async Task<JobDto> GetJobByIdAsync(int id)
@@ -62,7 +62,7 @@ namespace JopApplicationPlatform.Application.Services
             };
         }
 
-        public async Task<List<JobApplicationDto>> GetApplicantsForJobAsync(int jobId, int recruiterId)
+        public async Task<IEnumerable<JobApplicationDto>> GetApplicantsForJobAsync(int jobId, int recruiterId)
         {
             var job = await _jobRepository.GetOneAsync(j => j.Id == jobId);
             if (job == null) throw new Exception("Job not found.");
@@ -77,7 +77,7 @@ namespace JopApplicationPlatform.Application.Services
                 Status = a.Status,
                 AppliedAt = a.AppliedAt,
                 StatusUpdatedAt = a.StatusUpdatedAt
-            }).ToList();
+            });
         }
 
         public async Task CloseJobAsync(int jobId, int recruiterId)

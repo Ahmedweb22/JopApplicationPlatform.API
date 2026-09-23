@@ -11,6 +11,7 @@ using Scalar.AspNetCore;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
 using System.Text;
+using JopApplicationPlatform.Application.Features.Jobs.Commands.CreateJob;
 
 namespace JopApplicationPlatform.API
 {
@@ -30,11 +31,12 @@ namespace JopApplicationPlatform.API
                 options.UseSqlServer(connectionString));
             builder.Services.AddScoped(typeof(IRepository<Job>), typeof(Repository<Job>));
             builder.Services.AddScoped(typeof(IRepository<JobApplication>), typeof(Repository<JobApplication>));
-            builder.Services.AddScoped<IJobService, JobService>();    
-            builder.Services.AddScoped<IApplicationService, ApplicationService>();
-            
             builder.Services.AddScoped(typeof(IRepository<User>), typeof(Repository<User>));
-            builder.Services.AddScoped<IAuthService, AuthService>();
+
+            builder.Services.AddMediatR(cfg =>
+            {
+                cfg.RegisterServicesFromAssembly(typeof(CreateJobCommand).Assembly);
+            });
 
             builder.Services.AddAuthentication(options =>
             {
@@ -66,7 +68,7 @@ namespace JopApplicationPlatform.API
 
             app.UseHttpsRedirection();
 
-            app.UseAuthentication();
+            app.UseAuthentication();     
             app.UseAuthorization();
 
 

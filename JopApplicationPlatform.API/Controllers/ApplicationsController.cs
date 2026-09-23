@@ -1,10 +1,12 @@
 using JopApplicationPlatform.Application.DTOs.Requestes;
-using JopApplicationPlatform.Application.Interfaces.IServices;
 using Microsoft.AspNetCore.Mvc;
 using System.Security.Claims;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authorization;
 using JopApplicationPlatform.Domain.Constants;
+using MediatR;
+using JopApplicationPlatform.Application.Features.Applications.Queries.GetMyApplications;
+using JopApplicationPlatform.Application.Features.Applications.Commands.CancelApplication;
 
 namespace JopApplicationPlatform.API.Controllers
 {
@@ -13,11 +15,11 @@ namespace JopApplicationPlatform.API.Controllers
     [Authorize]
     public class ApplicationsController : ControllerBase
     {
-        private readonly IApplicationService _applicationService;
+        private readonly IMediator _mediator;
 
-        public ApplicationsController(IApplicationService applicationService)
+        public ApplicationsController(IMediator mediator)
         {
-            _applicationService = applicationService;
+            _mediator = mediator;
         }
 
         [HttpGet("my")]
@@ -30,7 +32,7 @@ namespace JopApplicationPlatform.API.Controllers
                 return Unauthorized("Candidate ID not found in token.");
             }
 
-            var applications = await _applicationService.GetMyApplicationsAsync(candidateId);
+            var applications = await _mediator.Send(new GetMyApplicationsQuery { CandidateId = candidateId });
             return Ok(applications);
         }
 
@@ -46,7 +48,7 @@ namespace JopApplicationPlatform.API.Controllers
 
             try
             {
-                await _applicationService.CancelApplicationAsync(id, candidateId);
+                await _mediator.Send(new CancelApplicationCommand { ApplicationId = id, CandidateId = candidateId });
                 return Ok(new { Message = "Application cancelled successfully." });
             }
             catch (System.UnauthorizedAccessException ex)
