@@ -18,7 +18,11 @@ namespace JopApplicationPlatform.API.Controllers
         {
             _mediator = mediator;
         }
-
+        /// <summary>
+        /// Registers a new user with the provided email, password, and role.
+        /// </summary>
+        /// <param name="dto"></param>
+        /// <returns></returns>
         [HttpPost("register")]
         public async Task<IActionResult> Register(RegisterDto dto)
         {
@@ -37,6 +41,11 @@ namespace JopApplicationPlatform.API.Controllers
                 return BadRequest(new { message = ex.Message });
             }
         }
+        /// <summary>
+        /// Authenticates a user with the provided email and password, returning a JWT token if successful.
+        /// </summary>
+        /// <param name="dto"></param>
+        /// <returns></returns>
 
         [HttpPost("login")]
         public async Task<IActionResult> Login(LoginDto dto)

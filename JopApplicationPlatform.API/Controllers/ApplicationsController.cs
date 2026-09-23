@@ -21,6 +21,10 @@ namespace JopApplicationPlatform.API.Controllers
         {
             _mediator = mediator;
         }
+        /// <summary>
+        /// Get the applications of the currently authenticated candidate.
+        /// </summary>
+        /// <returns>A list of applications belonging to the authenticated candidate.</returns>
 
         [HttpGet("my")]
         [Authorize(Roles = StaticRoles.Candidate)]
@@ -35,6 +39,11 @@ namespace JopApplicationPlatform.API.Controllers
             var applications = await _mediator.Send(new GetMyApplicationsQuery { CandidateId = candidateId });
             return Ok(applications);
         }
+        /// <summary>
+        /// Cancel an application for the currently authenticated candidate.
+        /// </summary>
+        /// <param name="id"></param>
+        /// <returns></returns>
 
         [HttpPut("{id}/cancel")]
         [Authorize(Roles = StaticRoles.Candidate)]

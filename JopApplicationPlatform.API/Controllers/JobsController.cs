@@ -26,7 +26,11 @@ namespace JopApplicationPlatform.API.Controllers
         {
             _mediator = mediator;
         }
-        
+        /// <summary>
+        /// Creates a new job posting. Only users with the "Recruiter" role can access this endpoint.
+        /// </summary>
+        /// <param name="createJobDto"></param>
+        /// <returns></returns>
         [HttpPost]
         [Authorize(Roles = StaticRoles.Recruiter)]
         public async Task<IActionResult> Create(CreateJobDto createJobDto)
@@ -39,6 +43,10 @@ namespace JopApplicationPlatform.API.Controllers
             });
             return Ok(new { Id = jobId });
         }
+        /// <summary>
+        /// Retrieves a list of available job postings. This endpoint is accessible to all users, including unauthenticated users.
+        /// </summary>
+        /// <returns></returns>
 
         [HttpGet]
         [AllowAnonymous]
@@ -47,7 +55,11 @@ namespace JopApplicationPlatform.API.Controllers
             var jobs = await _mediator.Send(new GetAvailableJobsQuery());
             return Ok(jobs);
         }
-
+        /// <summary>
+        /// Retrieves the details of a specific job posting by its ID. This endpoint is accessible to all users, including unauthenticated users.
+        /// </summary>
+        /// <param name="id"></param>
+        /// <returns></returns>
         [HttpGet("{id}")]
         [AllowAnonymous]
         public async Task<IActionResult> GetJobById(int id)
@@ -56,6 +68,11 @@ namespace JopApplicationPlatform.API.Controllers
             if (job == null) return NotFound();
             return Ok(job);
         }
+        /// <summary>
+        /// Retrieves a list of applicants for a specific job posting. Only users with the "Recruiter" role can access this endpoint, and they can only view applicants for jobs they have posted.
+        /// </summary>
+        /// <param name="jobId"></param>
+        /// <returns></returns>
 
         [HttpGet("{jobId}/applications")]
         [Authorize(Roles = StaticRoles.Recruiter)]
@@ -82,7 +99,11 @@ namespace JopApplicationPlatform.API.Controllers
                 return NotFound(ex.Message);
             }
         }
-
+        /// <summary>
+        /// Cancels a job posting, effectively closing it. Only users with the "Recruiter" role can access this endpoint, and they can only cancel jobs they have posted.
+        /// </summary>
+        /// <param name="id"></param>
+        /// <returns></returns>
         [HttpPut("{id}/cancel")]
         [Authorize(Roles = StaticRoles.Recruiter)]
         public async Task<IActionResult> CancelJob(int id)
@@ -107,7 +128,11 @@ namespace JopApplicationPlatform.API.Controllers
                 return NotFound(new { message = ex.Message });
             }
         }
-
+        /// <summary>
+        /// Allows a candidate to apply for a specific job posting. Only users with the "Candidate" role can access this endpoint.
+        /// </summary>
+        /// <param name="id"></param>
+        /// <returns></returns>
         [HttpPost("{id}/apply")]
         [Authorize(Roles = StaticRoles.Candidate)]
         public async Task<IActionResult> ApplyToJob(int id)
