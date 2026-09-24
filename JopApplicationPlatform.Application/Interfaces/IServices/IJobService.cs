@@ -9,7 +9,7 @@ namespace JopApplicationPlatform.Application.Interfaces.IServices
     {
         Task<int> CreateAsync(CreateJobDto createJobDto);
         Task<IEnumerable<JobDto>> GetAvailableJobsAsync();
-        Task<JobDto> GetJobByIdAsync(int id);
+        Task<JobDto?> GetJobByIdAsync(int id);
         Task<IEnumerable<JobApplicationDto>> GetApplicantsForJobAsync(int jobId, int recruiterId);
         Task CloseJobAsync(int jobId, int recruiterId);
     }

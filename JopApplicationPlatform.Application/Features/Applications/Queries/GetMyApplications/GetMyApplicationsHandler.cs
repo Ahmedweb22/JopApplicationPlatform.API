@@ -14,15 +14,26 @@ namespace JopApplicationPlatform.Application.Features.Applications.Queries.GetMy
     public class GetMyApplicationsHandler : IRequestHandler<GetMyApplicationsQuery, List<JobApplicationDto>>
     {
         private readonly IRepository<JobApplication> _applicationRepository;
+        private readonly IRepository<Candidate> _candidateRepository;
+        private readonly IRepository<User> _userRepository;
 
-        public GetMyApplicationsHandler(IRepository<JobApplication> applicationRepository)
+        public GetMyApplicationsHandler(
+            IRepository<JobApplication> applicationRepository,
+            IRepository<Candidate> candidateRepository,
+            IRepository<User> userRepository)
         {
             _applicationRepository = applicationRepository;
+            _candidateRepository = candidateRepository;
+            _userRepository = userRepository;
         }
 
         public async Task<List<JobApplicationDto>> Handle(GetMyApplicationsQuery request, CancellationToken cancellationToken)
         {
-            var applications = await _applicationRepository.GetAsync(a => a.CandidateId == request.CandidateId);
+            var user = await _userRepository.GetOneAsync(u => u.Id == request.CandidateId);
+            var candidate = await _candidateRepository.GetOneAsync(c => c.Id == request.CandidateId || (user != null && c.Email == user.Email));
+            int candidateId = candidate?.Id ?? request.CandidateId;
+
+            var applications = await _applicationRepository.GetAsync(a => a.CandidateId == candidateId);
             return applications.Select(a => new JobApplicationDto
             {
                 Id = a.Id,

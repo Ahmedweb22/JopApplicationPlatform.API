@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Text;
 using JopApplicationPlatform.Application.DTOs.Responses;
@@ -21,7 +21,8 @@ namespace JopApplicationPlatform.Application.Features.Jobs.Commands.CreateJob
             {
                 Title = request.Title,
                 Description = request.Description,
-                IsActive = request.IsActive
+                IsActive = request.IsActive,
+                RecruiterId = request.RecruiterId
             };
             await _jobRepository.CreateAsync(job);
             await _jobRepository.CommitAsync();

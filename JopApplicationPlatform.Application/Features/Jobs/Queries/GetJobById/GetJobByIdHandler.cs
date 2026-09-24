@@ -9,7 +9,7 @@ using System.Threading.Tasks;
 
 namespace JopApplicationPlatform.Application.Features.Jobs.Queries.GetJobById
 {
-    public class GetJobByIdHandler : IRequestHandler<GetJobByIdQuery, JobDto>
+    public class GetJobByIdHandler : IRequestHandler<GetJobByIdQuery, JobDto?>
     {
         private readonly IRepository<Domain.Entities.Job> _jobRepository;
         
@@ -18,7 +18,7 @@ namespace JopApplicationPlatform.Application.Features.Jobs.Queries.GetJobById
             _jobRepository = jobRepository;
         }
 
-        public async Task<JobDto> Handle(GetJobByIdQuery request, CancellationToken cancellationToken)
+        public async Task<JobDto?> Handle(GetJobByIdQuery request, CancellationToken cancellationToken)
         {
             var job = await _jobRepository.GetOneAsync(j => j.Id == request.Id);
             if (job == null) return null;

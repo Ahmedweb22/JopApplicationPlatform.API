@@ -47,7 +47,7 @@ namespace JopApplicationPlatform.Application.Services
             });
         }
 
-        public async Task<JobDto> GetJobByIdAsync(int id)
+        public async Task<JobDto?> GetJobByIdAsync(int id)
         {
             var job = await _jobRepository.GetOneAsync(j => j.Id == id);
             if (job == null) return null;

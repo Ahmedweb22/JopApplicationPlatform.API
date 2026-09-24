@@ -6,7 +6,7 @@ using MediatR;
 
 namespace JopApplicationPlatform.Application.Features.Jobs.Queries.GetJobById
 {
-    public class GetJobByIdQuery : IRequest<JobDto>
+    public class GetJobByIdQuery : IRequest<JobDto?>
     {
         public int Id { get; set; }
     }

@@ -16,11 +16,16 @@ namespace JopApplicationPlatform.Application.Features.Auth.Commands.Register
     public class RegisterHandler : IRequestHandler<RegisterCommand, AuthResponseDto>
     {
         private readonly IRepository<User> _userRepository;
+        private readonly IRepository<Candidate> _candidateRepository;
         private readonly string _jwtSecret;
 
-        public RegisterHandler(IRepository<User> userRepository, IConfiguration configuration)
+        public RegisterHandler(
+            IRepository<User> userRepository,
+            IRepository<Candidate> candidateRepository,
+            IConfiguration configuration)
         {
             _userRepository = userRepository;
+            _candidateRepository = candidateRepository;
             _jwtSecret = configuration["JwtSettings:Key"] ?? throw new InvalidOperationException("JwtSettings:Key is missing.");
         }
 
@@ -41,6 +46,18 @@ namespace JopApplicationPlatform.Application.Features.Auth.Commands.Register
 
             await _userRepository.CreateAsync(user);
             await _userRepository.CommitAsync();
+
+            if (string.Equals(request.Role, Domain.Constants.StaticRoles.Candidate, StringComparison.OrdinalIgnoreCase))
+            {
+                var candidate = new Candidate
+                {
+                    Name = request.Email.Contains('@') ? request.Email.Split('@')[0] : request.Email,
+                    Email = request.Email,
+                    CVUrl = string.Empty
+                };
+                await _candidateRepository.CreateAsync(candidate);
+                await _candidateRepository.CommitAsync();
+            }
 
             return new AuthResponseDto
             {

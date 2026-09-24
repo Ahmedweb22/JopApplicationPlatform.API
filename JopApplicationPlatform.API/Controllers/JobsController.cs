@@ -35,13 +35,20 @@ namespace JopApplicationPlatform.API.Controllers
         [Authorize(Roles = StaticRoles.Recruiter)]
         public async Task<IActionResult> Create(CreateJobDto createJobDto)
         {
+            var recruiterIdClaim = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            if (!int.TryParse(recruiterIdClaim, out int recruiterId))
+            {
+                return Unauthorized(new { message = "Recruiter ID not found in token." });
+            }
+
             var jobId = await _mediator.Send(new CreateJobCommand
             {
                 Title = createJobDto.Title,
                 Description = createJobDto.Description,
-                IsActive = createJobDto.IsActive
+                IsActive = createJobDto.IsActive,
+                RecruiterId = recruiterId
             });
-            return Ok(new { Id = jobId });
+            return CreatedAtAction(nameof(GetJobById), new { id = jobId }, new { Id = jobId });
         }
         /// <summary>
         /// Retrieves a list of available job postings. This endpoint is accessible to all users, including unauthenticated users.
@@ -65,7 +72,7 @@ namespace JopApplicationPlatform.API.Controllers
         public async Task<IActionResult> GetJobById(int id)
         {
             var job = await _mediator.Send(new GetJobByIdQuery { Id = id });
-            if (job == null) return NotFound();
+            if (job == null) return NotFound(new { message = $"Job with id {id} was not found." });
             return Ok(job);
         }
         /// <summary>
